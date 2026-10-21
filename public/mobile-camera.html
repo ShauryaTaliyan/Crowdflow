@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="chrome-light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CrowdFlow Mobile Camera — Live Observation Node</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       CROWDFLOW 3-THEME DESIGN SYSTEM (Synchronized with Main Web App)
+       ========================================================================== */
+
+    /* THEME 1: GOOGLE CHROME MINIMAL LIGHT (DEFAULT) */
+    :root,
+    [data-theme="chrome-light"] {
+      --bg-app: #f1f3f4;
+      --bg-app-pattern: 
+        radial-gradient(circle at 10% 12%, rgba(26, 115, 232, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 90% 85%, rgba(24, 128, 56, 0.04) 0%, transparent 50%),
+        linear-gradient(180deg, #f8f9fa 0%, #f1f3f4 100%);
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #ffffff;
+      --bg-subtle: #f8f9fa;
+      --bg-hover: #e8eaed;
+      --bg-glass: rgba(255, 255, 255, 0.90);
+      --bg-navbar: rgba(255, 255, 255, 0.96);
+
+      --border-subtle: #e8eaed;
+      --border-card: #dadce0;
+      --border-focus: #1a73e8;
+      --border-glow: rgba(26, 115, 232, 0.25);
+
+      --text-main: #202124;
+      --text-body: #3c4043;
+      --text-muted: #5f6368;
+      --text-dim: #80868b;
+
+      --primary: #1a73e8;
+      --primary-hover: #1557b0;
+      --primary-subtle: rgba(26, 115, 232, 0.09);
+      --primary-glow: 0 4px 14px rgba(26, 115, 232, 0.35);
+
+      --green: #188038;
+      --green-subtle: rgba(24, 128, 56, 0.10);
+      --green-text: #137333;
+
+      --amber: #ea8600;
+      --amber-subtle: rgba(234, 134, 0, 0.11);
+      --amber-text: #b06000;
+
+      --red: #d93025;
+      --red-subtle: rgba(217, 48, 37, 0.10);
+      --red-text: #c5221f;
+
+      --shadow-xs: 0 1px 2px 0 rgba(60, 64, 67, 0.08);
+      --shadow-sm: 0 1px 3px 0 rgba(60, 64, 67, 0.12), 0 1px 2px 0 rgba(60, 64, 67, 0.06);
+      --shadow-md: 0 4px 8px -1px rgba(60, 64, 67, 0.12), 0 2px 4px -1px rgba(60, 64, 67, 0.06);
+      --shadow-lg: 0 10px 20px -3px rgba(60, 64, 67, 0.15), 0 4px 6px -2px rgba(60, 64, 67, 0.08);
+    }
+
+    /* THEME 2: DARK LIQUID CHROME & BRUSHED TITANIUM */
+    [data-theme="chrome-dark-titanium"] {
+      --bg-app: #080a0f;
+      --bg-app-pattern: 
+        radial-gradient(ellipse at 50% -10%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 90% 40%, rgba(249, 115, 22, 0.04) 0%, transparent 50%),
+        linear-gradient(180deg, #0e121a 0%, #080a0f 100%);
+      --bg-surface: #101520;
+      --bg-surface-elevated: #161d2d;
+      --bg-subtle: #0d121c;
+      --bg-hover: #1e2638;
+      --bg-glass: rgba(16, 21, 32, 0.88);
+      --bg-navbar: rgba(13, 18, 28, 0.94);
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-card: #222b3d;
+      --border-focus: #38bdf8;
+      --border-glow: rgba(56, 189, 248, 0.35);
+
+      --text-main: #f8fafc;
+      --text-body: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --primary-subtle: rgba(56, 189, 248, 0.14);
+      --primary-glow: 0 4px 16px rgba(56, 189, 248, 0.40);
+
+      --green: #10b981;
+      --green-subtle: rgba(16, 185, 129, 0.16);
+      --green-text: #34d399;
+
+      --amber: #f59e0b;
+      --amber-subtle: rgba(245, 158, 11, 0.16);
+      --amber-text: #fbbf24;
+
+      --red: #ef4444;
+      --red-subtle: rgba(239, 68, 68, 0.18);
+      --red-text: #f87171;
+
+      --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+      --shadow-sm: 0 2px 5px 0 rgba(0, 0, 0, 0.45);
+      --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.55);
+      --shadow-lg: 0 12px 28px -4px rgba(0, 0, 0, 0.65);
+    }
+
+    /* THEME 3: POLISHED SILVER & REFLECTIVE CHROME */
+    [data-theme="chrome-silver"] {
+      --bg-app: #cfd5e1;
+      --bg-app-pattern: 
+        radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.85) 0%, transparent 45%),
+        radial-gradient(circle at 88% 70%, rgba(148, 163, 184, 0.35) 0%, transparent 50%),
+        linear-gradient(135deg, #e2e7f0 0%, #cbd4e2 50%, #b4c2d4 100%);
+      --bg-surface: #f8fafc;
+      --bg-surface-elevated: #ffffff;
+      --bg-subtle: #e2e8f0;
+      --bg-hover: #cbd5e1;
+      --bg-glass: rgba(248, 250, 252, 0.92);
+      --bg-navbar: rgba(241, 245, 249, 0.95);
+
+      --border-subtle: #cbd5e1;
+      --border-card: #94a3b8;
+      --border-focus: #0284c7;
+      --border-glow: rgba(2, 132, 199, 0.35);
+
+      --text-main: #0f172a;
+      --text-body: #1e293b;
+      --text-muted: #475569;
+      --text-dim: #64748b;
+
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-subtle: rgba(2, 132, 199, 0.12);
+      --primary-glow: 0 4px 16px rgba(2, 132, 199, 0.35);
+
+      --green: #059669;
+      --green-subtle: rgba(5, 150, 105, 0.12);
+      --green-text: #047857;
+
+      --amber: #d97706;
+      --amber-subtle: rgba(217, 119, 6, 0.12);
+      --amber-text: #b45309;
+
+      --red: #dc2626;
+      --red-subtle: rgba(220, 38, 38, 0.12);
+      --red-text: #b91c1c;
+
+      --shadow-xs: 0 1px 2px 0 rgba(71, 85, 105, 0.15);
+      --shadow-sm: 0 1px 3px 0 rgba(71, 85, 105, 0.15);
+      --shadow-md: 0 4px 10px -1px rgba(71, 85, 105, 0.20);
+      --shadow-lg: 0 12px 24px -3px rgba(71, 85, 105, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-app);
+      background-image: var(--bg-app-pattern);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    header {
+      background: var(--bg-navbar);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-card);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-subtle);
+      object-fit: cover;
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-badge {
+      font-size: 0.62rem;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border-subtle);
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Theme Switcher Button */
+    .theme-toggle-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      color: var(--text-body);
+      border-radius: 9999px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-focus);
+    }
+
+    .theme-toggle-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Live Status Badge */
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+
+    .status-streaming {
+      background: var(--green-subtle);
+      color: var(--green-text);
+      border-color: rgba(24, 128, 56, 0.3);
+    }
+
+    .status-streaming .status-dot {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.4s infinite;
+    }
+
+    .status-connected {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border-color: rgba(26, 115, 232, 0.25);
+    }
+
+    .status-connected .status-dot {
+      background: var(--primary);
+    }
+
+    .status-error {
+      background: var(--red-subtle);
+      color: var(--red-text);
+      border-color: rgba(217, 48, 37, 0.3);
+    }
+
+    .status-error .status-dot {
+      background: var(--red);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .main-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 12px;
+      max-width: 520px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Session Card */
+    .session-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .session-title {
+      color: var(--text-muted);
+      font-size: 0.70rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .session-name {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .session-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .session-id {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-body);
+      font-weight: 600;
+      font-size: 0.75rem;
+      background: var(--bg-subtle);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .session-zone {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.75rem;
+      background: var(--primary-subtle);
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Video Viewport */
+    .viewport-container {
+      position: relative;
+      background: #020617;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      border: 2px solid var(--border-card);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    canvas#overlayCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .placeholder-view {
+      position: absolute;
+      text-align: center;
+      padding: 24px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      max-width: 320px;
+    }
+
+    .placeholder-icon {
+      font-size: 2.8rem;
+      opacity: 0.85;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+    }
+
+    .placeholder-view p {
+      font-size: 0.86rem;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
+
+    /* Floating Viewfinder HUD */
+    .viewfinder-hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-pill {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .count-highlight {
+      font-size: 1.15rem;
+      color: #38bdf8;
+      font-weight: 800;
+    }
+
+    .bottom-hud-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.70rem;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      pointer-events: none;
+    }
+
+    /* Controls Bar */
+    .controls-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    button.btn {
+      padding: 13px 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    button.btn:active {
+      transform: scale(0.98);
+    }
+
+    button.btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: var(--primary-glow);
+    }
+
+    button.btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    button.btn-danger {
+      background: var(--red);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(217, 48, 37, 0.35);
+    }
+
+    button.btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border: 1.5px solid var(--border-card);
+      box-shadow: var(--shadow-xs);
+    }
+
+    button.btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-focus);
+    }
+
+    /* Privacy info banner */
+    .privacy-notice {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .notice-icon {
+      font-size: 1.15rem;
+      color: var(--primary);
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    /* Error alert */
+    .alert-banner {
+      background: var(--red-subtle);
+      border: 1px solid rgba(217, 48, 37, 0.3);
+      color: var(--red-text);
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px 14px 22px;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-wrap">
+      <img src="/logo-square.png" alt="CrowdFlow" class="brand-logo-img">
+      <div>
+        <div class="brand-title">
+          <span>CrowdFlow</span>
+          <span class="brand-badge">NODE</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Theme Switcher Toggle -->
+      <button id="btnThemeToggle" class="theme-toggle-btn" title="Switch Website Theme">
+        <span id="themeToggleIcon">☀️</span>
+        <span id="themeToggleText">Light</span>
+      </button>
+
+      <!-- Status Badge -->
+      <div id="statusBadge" class="status-badge status-connected">
+        <span class="status-dot"></span>
+        <span id="statusText">Ready</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-view">
+    <!-- Active Camera Session Card -->
+    <div class="session-card">
+      <div class="session-title">Active Camera Session</div>
+      <div class="session-name" id="cameraName">Mobile Camera Node</div>
+      <div class="session-meta-row">
+        <span class="session-id" id="sessionLabel">Token: Loading...</span>
+        <span class="session-zone" id="zoneLabel">Zone: Unassigned</span>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div id="errorAlert" class="alert-banner"></div>
+
+    <!-- Viewport Container -->
+    <div class="viewport-container">
+      <video id="videoPreview" autoplay playsinline muted></video>
+      <canvas id="overlayCanvas"></canvas>
+
+      <div id="placeholder" class="placeholder-view">
+        <div class="placeholder-icon">📷</div>
+        <p>Camera is currently inactive.<br>Tap <strong>Start Camera & Stream</strong> below to begin observation.</p>
+      </div>
+
+      <div class="viewfinder-hud">
+        <div class="hud-pill">
+          <span>Observed:</span>
+          <span class="count-highlight" id="hudCount">0</span>
+          <span>people</span>
+        </div>
+        <div class="hud-pill" id="hudLatency">
+          <span>⚡</span>
+          <span id="latencyText">-- ms</span>
+        </div>
+      </div>
+
+      <div class="bottom-hud-bar">
+        <span>YOLOv8n Object Detector</span>
+        <span>Person Class (0)</span>
+      </div>
+    </div>
+
+    <!-- Controls (Quality button removed as requested) -->
+    <div class="controls-grid">
+      <button id="btnStart" class="btn btn-primary">
+        <span>▶ Start Camera & Stream</span>
+      </button>
+
+      <button id="btnStop" class="btn btn-danger" style="display: none;">
+        <span>⏹ Stop Camera</span>
+      </button>
+
+      <button id="btnFlip" class="btn btn-secondary">
+        <span>🔄 Flip Camera (Rear ↔ Front)</span>
+      </button>
+    </div>
+
+    <!-- Privacy Banner -->
+    <div class="privacy-notice">
+      <span class="notice-icon">🛡️</span>
+      <div>
+        <strong style="color: var(--text-main); display: block; margin-bottom: 2px;">Privacy-Preserving Edge Perception:</strong>
+        This mobile camera feeds anonymous spatial people counting only. No video recordings, identity facial recognition, or personal biometric profiles are collected or stored.
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    CrowdFlow Spatial Intelligence &bull; Anonymous Edge Observation Node
+  </footer>
+
+  <script>
+    // =========================================================================
+    // Theme Management (Synced with Main CrowdFlow Website)
+    // Themes: 'chrome-light' (Default), 'chrome-dark-titanium', 'chrome-silver'
+    // =========================================================================
+    const THEMES = [
+      { id: 'chrome-light', name: 'Light', icon: '☀️' },
+      { id: 'chrome-dark-titanium', name: 'Titanium', icon: '🌙' },
+      { id: 'chrome-silver', name: 'Silver', icon: '✨' }
+    ];
+    const STORAGE_KEY_THEME = 'crowdflow_theme_preference_v1';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionToken = urlParams.get('session');
+    const paramTheme = urlParams.get('theme');
+
+    let currentTheme = paramTheme || localStorage.getItem(STORAGE_KEY_THEME) || 'chrome-light';
+    if (!THEMES.some(t => t.id === currentTheme)) {
+      currentTheme = 'chrome-light';
+    }
+
+    const btnThemeToggle = document.getElementById('btnThemeToggle');
+    const themeToggleIcon = document.getElementById('themeToggleIcon');
+    const themeToggleText = document.getElementById('themeToggleText');
+
+    function applyTheme(themeId) {
+      currentTheme = themeId;
+      document.documentElement.setAttribute('data-theme', themeId);
+      localStorage.setItem(STORAGE_KEY_THEME, themeId);
+      const meta = THEMES.find(t => t.id === themeId) || THEMES[0];
+      if (themeToggleIcon) themeToggleIcon.textContent = meta.icon;
+      if (themeToggleText) themeToggleText.textContent = meta.name;
+    }
+
+    btnThemeToggle.addEventListener('click', () => {
+      const idx = THEMES.findIndex(t => t.id === currentTheme);
+      const nextTheme = THEMES[(idx + 1) % THEMES.length].id;
+      applyTheme(nextTheme);
+    });
+
+    // Initialize Theme immediately
+    applyTheme(currentTheme);
+
+    // =========================================================================
+    // Camera Stream & YOLO Pipeline
+    // =========================================================================
+    const videoElem = document.getElementById('videoPreview');
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    const overlayCtx = overlayCanvas.getContext('2d');
+    const placeholder = document.getElementById('placeholder');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const btnFlip = document.getElementById('btnFlip');
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    const cameraNameElem = document.getElementById('cameraName');
+    const sessionLabel = document.getElementById('sessionLabel');
+    const zoneLabel = document.getElementById('zoneLabel');
+    const hudCount = document.getElementById('hudCount');
+    const latencyText = document.getElementById('latencyText');
+    const errorAlert = document.getElementById('errorAlert');
+
+    let stream = null;
+    let ws = null;
+    let isStreaming = false;
+    let currentFacingMode = 'environment';
+    let captureIntervalTimer = null;
+    let cameraSessionData = null;
+
+    const captureCanvas = document.createElement('canvas');
+    const captureCtx = captureCanvas.getContext('2d', { willReadFrequently: true });
+
+    function showError(msg) {
+      errorAlert.textContent = msg;
+      errorAlert.style.display = 'block';
+    }
+
+    function setStatus(cls, text) {
+      statusBadge.className = `status-badge status-${cls}`;
+      statusText.textContent = text;
+    }
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsBase = `${wsProtocol}//${window.location.host}`;
+
+    async function initSession() {
+      if (!sessionToken) {
+        setStatus('connecting', 'Auto-Creating Session...');
+        try {
+          const res = await fetch('/api/cameras/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ camera_name: 'Mobile Phone Camera', theme: currentTheme })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            window.location.replace(`/mobile-camera.html?session=${data.session_token}&theme=${currentTheme}`);
+            return;
+          }
+        } catch (e) {
+          console.warn('Auto session error', e);
+        }
+        showError('No session token provided. Scan the QR code or click Connect Phone Camera.');
+        setStatus('error', 'Invalid Link');
+        return;
+      }
+
+      sessionLabel.textContent = `Token: ${sessionToken.slice(0, 8)}...`;
+
+      try {
+        const res = await fetch(`/api/cameras/session/${sessionToken}`);
+        if (!res.ok) {
+          throw new Error('Session expired or not found on server.');
+        }
+        cameraSessionData = await res.json();
+        cameraNameElem.textContent = cameraSessionData.camera_name || 'Mobile Camera';
+        if (cameraSessionData.assigned_zone_id) {
+          zoneLabel.textContent = `Zone: ${cameraSessionData.assigned_zone_id.replace('zone_', '')}`;
+        }
+        errorAlert.style.display = 'none';
+        setStatus('connected', 'Ready to Stream');
+        connectWebSocket();
+      } catch (err) {
+        console.error('Session init error:', err);
+        showError(err.message);
+        setStatus('error', 'Disconnected');
+        connectWebSocket();
+      }
+    }
+
+    function connectWebSocket() {
+      if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+        return;
+      }
+
+      const wsUrl = `${wsBase}/ws/camera/${sessionToken}`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log('Connected to CrowdFlow backend websocket');
+        errorAlert.style.display = 'none';
+        if (isStreaming) {
+          setStatus('streaming', 'Streaming Live');
+        } else {
+          setStatus('connected', 'Ready');
+        }
+      };
+
+      ws.onmessage = (evt) => {
+        try {
+          const data = JSON.parse(evt.data);
+          if (data.type === 'detection') {
+            errorAlert.style.display = 'none';
+            hudCount.textContent = data.people_count;
+            latencyText.textContent = `${Math.round(data.inference_ms)} ms`;
+            drawBoundingBoxes(data.boxes, data.image_width, data.image_height);
+          }
+        } catch (e) {
+          console.warn('WS message parse error', e);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log('WS closed. Reconnecting in 3s...');
+        setStatus('error', 'Reconnecting...');
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      ws.onerror = (err) => {
+        console.error('WS Error:', err);
+      };
+    }
+
+    function drawBoundingBoxes(boxes, imgW, imgH) {
+      if (!boxes || !overlayCanvas.width) return;
+      overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+      const scaleX = overlayCanvas.width / (imgW || overlayCanvas.width);
+      const scaleY = overlayCanvas.height / (imgH || overlayCanvas.height);
+
+      boxes.forEach(b => {
+        const x = b.x1 * scaleX;
+        const y = b.y1 * scaleY;
+        const w = (b.x2 - b.x1) * scaleX;
+        const h = (b.y2 - b.y1) * scaleY;
+
+        overlayCtx.strokeStyle = '#38bdf8';
+        overlayCtx.lineWidth = 2.5;
+        overlayCtx.strokeRect(x, y, w, h);
+
+        overlayCtx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+        overlayCtx.fillRect(x, y, w, h);
+
+        overlayCtx.fillStyle = '#0284c7';
+        overlayCtx.fillRect(x, Math.max(0, y - 18), 75, 18);
+        overlayCtx.fillStyle = '#ffffff';
+        overlayCtx.font = 'bold 11px sans-serif';
+        overlayCtx.fillText(`Person ${(b.conf * 100).toFixed(0)}%`, x + 4, Math.max(12, y - 5));
+      });
+    }
+
+    async function startCamera() {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera access API is not available. Please ensure page is served over HTTPS.');
+        }
+
+        const constraints = {
+          video: {
+            facingMode: currentFacingMode,
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            frameRate: { ideal: 15 }
+          },
+          audio: false
+        };
+
+        let streamResult;
+        try {
+          streamResult = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (constraintErr) {
+          console.warn('FacingMode constraint failed, falling back to basic video device:', constraintErr);
+          streamResult = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
+        stream = streamResult;
+        videoElem.srcObject = stream;
+        await videoElem.play();
+
+        placeholder.style.display = 'none';
+        btnStart.style.display = 'none';
+        btnStop.style.display = 'flex';
+        isStreaming = true;
+        setStatus('streaming', 'Streaming Live');
+
+        videoElem.onloadedmetadata = () => {
+          overlayCanvas.width = videoElem.videoWidth;
+          overlayCanvas.height = videoElem.videoHeight;
+        };
+
+        captureIntervalTimer = setInterval(captureAndSendFrame, 350);
+
+      } catch (err) {
+        console.error('Camera access error:', err);
+        showError(`Camera permission denied or unavailable: ${err.message}`);
+        setStatus('error', 'Camera Blocked');
+      }
+    }
+
+    function stopCamera() {
+      if (captureIntervalTimer) {
+        clearInterval(captureIntervalTimer);
+        captureIntervalTimer = null;
+      }
+
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+
+      videoElem.srcObject = null;
+      overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+      placeholder.style.display = 'flex';
+      btnStart.style.display = 'flex';
+      btnStop.style.display = 'none';
+      isStreaming = false;
+      setStatus('connected', 'Ready');
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'stop' }));
+      }
+    }
+
+    let isPostingFrame = false;
+
+    async function captureAndSendFrame() {
+      if (!isStreaming || !videoElem.videoWidth || isPostingFrame) return;
+
+      const w = 480;
+      const h = Math.round((videoElem.videoHeight / videoElem.videoWidth) * w);
+
+      captureCanvas.width = w;
+      captureCanvas.height = h;
+      captureCtx.drawImage(videoElem, 0, 0, w, h);
+
+      const dataUrl = captureCanvas.toDataURL('image/jpeg', 0.65);
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'frame',
+          image: dataUrl,
+          timestamp: Date.now() / 1000
+        }));
+      } else {
+        const targetId = cameraSessionData?.camera_id || sessionToken;
+        if (targetId) {
+          isPostingFrame = true;
+          try {
+            const res = await fetch(`/api/cameras/${targetId}/detect-frame`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image_base64: dataUrl, source_type: 'phone' })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              errorAlert.style.display = 'none';
+              hudCount.textContent = data.people_count;
+              latencyText.textContent = `${Math.round(data.inference_ms)} ms`;
+              drawBoundingBoxes(data.boxes, data.image_width, data.image_height);
+              setStatus('streaming', 'Streaming Live');
+            }
+          } catch (postErr) {
+            console.warn('HTTP frame stream error', postErr);
+          } finally {
+            isPostingFrame = false;
+          }
+        }
+      }
+    }
+
+    // Flip Camera (Rear ↔ Front)
+    btnFlip.addEventListener('click', async () => {
+      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+      if (isStreaming) {
+        stopCamera();
+        await startCamera();
+      }
+    });
+
+    btnStart.addEventListener('click', startCamera);
+    btnStop.addEventListener('click', stopCamera);
+
+    window.addEventListener('DOMContentLoaded', initSession);
+    window.addEventListener('beforeunload', stopCamera);
+  </script>
+</body>
+</html>

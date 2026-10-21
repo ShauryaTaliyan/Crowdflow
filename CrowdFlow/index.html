@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrowdFlow — Pedestrian Crowd Simulation Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-branding">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="app-title">CrowdFlow</h1>
+          <p class="app-subtitle">Pedestrian Crowd Dynamics & Venue Congestion Simulation Prototype</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <div class="status-indicator">
+          <span class="status-dot" id="statusDot"></span>
+          <span class="status-text" id="statusText">Ready to Simulate</span>
+        </div>
+        <div class="venue-select-wrapper">
+          <label for="venuePreset" class="sr-only">Venue Preset</label>
+          <select id="venuePreset" class="venue-select" title="Select Venue Layout Preset">
+            <option value="exhibition" selected>Exhibition Hall (Default)</option>
+            <option value="transit">Transit Station Concourse</option>
+            <option value="plaza">Multi-Aisle Shopping Mall</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Live Statistics Strip -->
+    <section class="stats-strip" aria-label="Simulation Live Statistics">
+      <div class="stat-card">
+        <div class="stat-label">Active Pedestrians</div>
+        <div class="stat-value" id="statActive">0</div>
+        <div class="stat-sub" id="statActiveSub">Target: 80</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Exited</div>
+        <div class="stat-value" id="statExited">0</div>
+        <div class="stat-sub">Completed journeys</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Average Density</div>
+        <div class="stat-value" id="statDensity">0.00 <span class="stat-unit">p/100m²</span></div>
+        <div class="stat-sub" id="statDensityRating">Level: Clear</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Congestion Hotspots</div>
+        <div class="stat-value stat-alert" id="statHotspots">0</div>
+        <div class="stat-sub" id="statHotspotsDesc">No bottlenecks detected</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Simulation Time</div>
+        <div class="stat-value" id="statTime">00:00</div>
+        <div class="stat-sub" id="statFps">60 FPS</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace: Canvas & Control Panel -->
+    <main class="main-workspace">
+      <!-- Venue Canvas Container -->
+      <div class="canvas-panel">
+        <div class="canvas-toolbar">
+          <div class="venue-info">
+            <span class="venue-name" id="currentVenueName">Exhibition Hall A</span>
+            <span class="venue-details" id="currentVenueDetails">1000m² Floor Plan &bull; 2 Entrances &bull; 2 Exits</span>
+          </div>
+          <div class="canvas-actions">
+            <button id="btnToggleLegend" class="btn-icon" title="Toggle Legend">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+              </svg>
+              <span>Legend</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="simulationCanvas" width="1000" height="620"></canvas>
+          
+          <!-- Floating Legend -->
+          <div class="congestion-legend" id="congestionLegend">
+            <div class="legend-header">
+              <span class="legend-title">Density Heatmap Scale</span>
+              <button class="legend-close" id="btnCloseLegend" title="Hide Legend">&times;</button>
+            </div>
+            <div class="legend-items">
+              <div class="legend-item">
+                <span class="legend-color-box level-clear"></span>
+                <span class="legend-desc"><strong>Low (Clear):</strong> Free flow movement</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color-box level-moderate"></span>
+                <span class="legend-desc"><strong>Moderate:</strong> Slight speed reduction</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color-box level-dense"></span>
+                <span class="legend-desc"><strong>High Density:</strong> Emerging delay</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color-box level-bottleneck"></span>
+                <span class="legend-desc"><strong>Bottleneck:</strong> Queuing / Congestion</span>
+              </div>
+            </div>
+            <div class="legend-note">
+              * Informational prototype metric. Not intended for actual life safety or code compliance.
+            </div>
+          </div>
+        </div>
+
+        <!-- Venue Navigation & Key Features Bar -->
+        <div class="venue-footer-bar">
+          <div class="venue-badge entrance-badge">
+            <span class="dot-green"></span> Green: Entrances (Pedestrian Inflow)
+          </div>
+          <div class="venue-badge exit-badge">
+            <span class="dot-red"></span> Red: Exits (Pedestrian Outflow)
+          </div>
+          <div class="venue-badge obstacle-badge">
+            <span class="dot-gray"></span> Gray Blocks: Stalls & Barriers
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Sidebar -->
+      <aside class="controls-panel">
+        <!-- Playback Controls -->
+        <div class="panel-section">
+          <h2 class="section-title">Playback Controls</h2>
+          <div class="button-group primary-actions">
+            <button id="btnStart" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Start</span>
+            </button>
+            <button id="btnPause" class="btn btn-secondary" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              <span>Pause</span>
+            </button>
+            <button id="btnReset" class="btn btn-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulation Parameters -->
+        <div class="panel-section">
+          <h2 class="section-title">Crowd Parameters</h2>
+          
+          <!-- Crowd Size Slider -->
+          <div class="control-group">
+            <div class="control-header">
+              <label for="sliderCrowdSize">Target Crowd Size</label>
+              <span class="value-badge" id="valCrowdSize">80</span>
+            </div>
+            <input type="range" id="sliderCrowdSize" min="20" max="300" step="10" value="80" class="styled-range">
+            <div class="range-bounds">
+              <span>20</span>
+              <span>150</span>
+              <span>300</span>
+            </div>
+          </div>
+
+          <!-- Walking Speed Slider -->
+          <div class="control-group">
+            <div class="control-header">
+              <label for="sliderSpeed">Pedestrian Walking Speed</label>
+              <span class="value-badge" id="valSpeed">1.0x</span>
+            </div>
+            <input type="range" id="sliderSpeed" min="0.5" max="2.5" step="0.1" value="1.0" class="styled-range">
+            <div class="range-bounds">
+              <span>0.5x (Slow)</span>
+              <span>1.0x (Normal)</span>
+              <span>2.5x (Fast)</span>
+            </div>
+          </div>
+
+          <!-- Simulation Rate -->
+          <div class="control-group">
+            <div class="control-header">
+              <label>Simulation Clock Rate</label>
+            </div>
+            <div class="sim-rate-options" role="radiogroup" aria-label="Simulation Rate">
+              <button type="button" class="btn-chip active" data-rate="1">1x</button>
+              <button type="button" class="btn-chip" data-rate="2">2x</button>
+              <button type="button" class="btn-chip" data-rate="4">4x</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Analysis Layers -->
+        <div class="panel-section">
+          <h2 class="section-title">Visualization Overlays</h2>
+          
+          <div class="toggle-group">
+            <label class="toggle-control" for="toggleHeatmap">
+              <input type="checkbox" id="toggleHeatmap" checked>
+              <span class="toggle-switch"></span>
+              <span class="toggle-label">Density Heatmap Overlay</span>
+            </label>
+          </div>
+
+          <div class="toggle-group">
+            <label class="toggle-control" for="toggleCongestionZones">
+              <input type="checkbox" id="toggleCongestionZones" checked>
+              <span class="toggle-switch"></span>
+              <span class="toggle-label">Bottleneck Warning Rings</span>
+            </label>
+          </div>
+
+          <div class="toggle-group">
+            <label class="toggle-control" for="toggleFlowVectors">
+              <input type="checkbox" id="toggleFlowVectors">
+              <span class="toggle-switch"></span>
+              <span class="toggle-label">Navigation Corridor Lines</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Simulation State & Diagnostic Log -->
+        <div class="panel-section">
+          <h2 class="section-title">System Status & Diagnostics</h2>
+          <div class="status-box" id="systemLogBox">
+            <div class="log-entry log-info">[System] CrowdFlow initialized. Default Exhibition preset loaded.</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer Disclaimer -->
+    <footer class="app-footer">
+      <span>CrowdFlow Prototype &bull; Educational Pedestrian Simulation</span>
+      <span>HTML5 Canvas &bull; Vanilla JavaScript &bull; Obstacle-Aware Potential Flow Navigation</span>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

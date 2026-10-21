@@ -1,0 +1,20 @@
+[ req ]
+distinguished_name = req_dn
+prompt = no
+req_extensions = v3_req
+
+[ req_dn ]
+CN = localhost
+O = CrowdFlow Platform
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = localhost
+DNS.2 = *.localhost
+IP.1 = 127.0.0.1
+IP.2 = 192.168.0.49
