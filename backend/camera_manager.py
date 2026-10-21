@@ -7,6 +7,7 @@ and zone-level occupancy aggregation with explicit double-counting prevention po
 import time
 import secrets
 import socket
+import os
 import qrcode
 import io
 import base64
@@ -72,7 +73,13 @@ class CameraManager:
 
         # Connect URL - defaults to HTTPS over LAN so mobile browser allows getUserMedia
         theme_param = f"&theme={theme}" if theme else ""
-        mobile_url = f"https://{host_to_use}:{self.frontend_port}/mobile-camera.html?session={session_token}{theme_param}"
+        public_frontend = os.environ.get("PUBLIC_FRONTEND_URL")
+        public_backend = os.environ.get("PUBLIC_BACKEND_URL")
+        server_param = f"&server={public_backend.rstrip('/')}" if public_backend else ""
+        if public_frontend:
+            mobile_url = f"{public_frontend.rstrip('/')}/mobile-camera.html?session={session_token}{theme_param}{server_param}"
+        else:
+            mobile_url = f"https://{host_to_use}:{self.frontend_port}/mobile-camera.html?session={session_token}{theme_param}{server_param}"
         qr_code_data_url = generate_qr_data_url(mobile_url)
 
         cam_data = {

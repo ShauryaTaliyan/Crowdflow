@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useCrowdFlow } from '../context/CrowdFlowContext';
+import { apiUrl } from '../utils/api';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants/presets';
 import StatCard from './Common/StatCard';
 import {
@@ -152,7 +153,7 @@ export default function LiveMonitoringView() {
 
       for (const cam of activeCams) {
         try {
-          const res = await fetch(`/api/cameras/${cam.id}/snapshot`);
+          const res = await fetch(apiUrl(`/api/cameras/${cam.id}/snapshot`));
           if (res.ok) {
             const data = await res.json();
             if (data && data.image_base64 && isMounted) {
@@ -587,7 +588,7 @@ export default function LiveMonitoringView() {
 
     try {
       addNotification(`Uploading and analyzing video "${file.name}"...`, 'info');
-      const res = await fetch('/api/upload-video', {
+      const res = await fetch(apiUrl('/api/upload-video'), {
         method: 'POST',
         body: formData
       });
@@ -2555,7 +2556,7 @@ export default function LiveMonitoringView() {
                     marker_y: 220
                   });
                   // Start stream
-                  await fetch(`/api/cameras/${camId}/rtsp-start`, { method: 'POST' });
+                  await fetch(apiUrl(`/api/cameras/${camId}/rtsp-start`), { method: 'POST' });
                   addNotification(`RTSP camera '${rtspForm.name}' configured. Initializing worker...`, 'info');
                   setShowRtspModal(false);
                   fetchMonitoringData();

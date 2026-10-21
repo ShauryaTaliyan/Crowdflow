@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: crowdflow-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PUBLIC_FRONTEND_URL
+        sync: false
+      - key: PUBLIC_BACKEND_URL
+        sync: false

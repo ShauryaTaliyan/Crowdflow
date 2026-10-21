@@ -10,6 +10,7 @@
  */
 
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants/presets.js';
+import { apiUrl } from '../utils/api.js';
 
 /**
  * Scans an HTML Image or Canvas element and extracts candidate walls and booths.
@@ -225,7 +226,7 @@ export async function digitalizeBlueprintToLayout(sourceImage, existingVenue = {
       ctx.drawImage(sourceImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       const dataUrl = offscreen.toDataURL('image/jpeg', 0.85);
 
-      const res = await fetch('/api/blueprint/digitalize', {
+      const res = await fetch(apiUrl('/api/blueprint/digitalize'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

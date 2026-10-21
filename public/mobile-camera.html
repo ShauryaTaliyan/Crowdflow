@@ -772,20 +772,25 @@
     }
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsBase = `${wsProtocol}//${window.location.host}`;
+    const serverParam = urlParams.get('server') || urlParams.get('api') || '';
+    const apiBase = serverParam ? serverParam.replace(/\/+$/, '') : '';
+    const wsBase = apiBase 
+      ? apiBase.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:') 
+      : `${wsProtocol}//${window.location.host}`;
 
     async function initSession() {
       if (!sessionToken) {
         setStatus('connecting', 'Auto-Creating Session...');
         try {
-          const res = await fetch('/api/cameras/session', {
+          const res = await fetch(`${apiBase}/api/cameras/session`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ camera_name: 'Mobile Phone Camera', theme: currentTheme })
           });
           if (res.ok) {
             const data = await res.json();
-            window.location.replace(`/mobile-camera.html?session=${data.session_token}&theme=${currentTheme}`);
+            const serverQuery = serverParam ? `&server=${encodeURIComponent(serverParam)}` : '';
+            window.location.replace(`/mobile-camera.html?session=${data.session_token}&theme=${currentTheme}${serverQuery}`);
             return;
           }
         } catch (e) {
@@ -799,7 +804,7 @@
       sessionLabel.textContent = `Token: ${sessionToken.slice(0, 8)}...`;
 
       try {
-        const res = await fetch(`/api/cameras/session/${sessionToken}`);
+        const res = await fetch(`${apiBase}/api/cameras/session/${sessionToken}`);
         if (!res.ok) {
           throw new Error('Session expired or not found on server.');
         }
@@ -986,7 +991,7 @@
         if (targetId) {
           isPostingFrame = true;
           try {
-            const res = await fetch(`/api/cameras/${targetId}/detect-frame`, {
+            const res = await fetch(`${apiBase}/api/cameras/${targetId}/detect-frame`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ image_base64: dataUrl, source_type: 'phone' })

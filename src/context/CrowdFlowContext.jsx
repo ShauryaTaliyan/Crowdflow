@@ -17,6 +17,7 @@ import { buildNavigationGrid } from '../engine/navigation';
 import { SimulationEngine } from '../engine/simulation';
 import { analyzeSimulationAndGenerateRecommendations } from '../engine/rulesEngine';
 import { detectBlueprintCandidates, digitalizeBlueprintToLayout } from '../engine/cvDetector';
+import { apiUrl, getWsUrl } from '../utils/api';
 
 const CrowdFlowContext = createContext(null);
 
@@ -211,11 +212,11 @@ export function CrowdFlowProvider({ children }) {
   const fetchMonitoringData = useCallback(async () => {
     try {
       const [zRes, cRes, oRes, eRes, hRes] = await Promise.all([
-        fetch('/api/zones'),
-        fetch('/api/cameras'),
-        fetch('/api/occupancy'),
-        fetch('/api/events'),
-        fetch('/api/observations/history')
+        fetch(apiUrl('/api/zones')),
+        fetch(apiUrl('/api/cameras')),
+        fetch(apiUrl('/api/occupancy')),
+        fetch(apiUrl('/api/events')),
+        fetch(apiUrl('/api/observations/history'))
       ]);
       if (zRes.ok) setMonitoringZones(await zRes.json());
       if (cRes.ok) setCameras(await cRes.json());
@@ -241,8 +242,7 @@ export function CrowdFlowProvider({ children }) {
     let reconnectTimer = null;
 
     const connectLiveWS = () => {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/ws/live`;
+      const wsUrl = getWsUrl('/ws/live');
       ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
@@ -284,7 +284,7 @@ export function CrowdFlowProvider({ children }) {
   // Phone Camera Session
   const createPhoneCameraSession = useCallback(async (zoneId = null, cameraName = null) => {
     try {
-      const res = await fetch('/api/cameras/session', {
+      const res = await fetch(apiUrl('/api/cameras/session'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -321,7 +321,7 @@ export function CrowdFlowProvider({ children }) {
 
   const addMonitoringZone = useCallback(async (zoneData) => {
     try {
-      const res = await fetch('/api/zones', {
+      const res = await fetch(apiUrl('/api/zones'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(zoneData)
@@ -339,7 +339,7 @@ export function CrowdFlowProvider({ children }) {
 
   const deleteMonitoringZone = useCallback(async (zoneId) => {
     try {
-      await fetch(`/api/zones/${zoneId}`, { method: 'DELETE' });
+      await fetch(apiUrl(`/api/zones/${zoneId}`), { method: 'DELETE' });
       setMonitoringZones(prev => prev.filter(z => z.id !== zoneId));
       addNotification(`Deleted monitoring zone (${zoneId}).`, 'info');
       fetchMonitoringData();
@@ -350,7 +350,7 @@ export function CrowdFlowProvider({ children }) {
 
   const updateCamera = useCallback(async (cameraData) => {
     try {
-      const res = await fetch('/api/cameras', {
+      const res = await fetch(apiUrl('/api/cameras'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cameraData)
@@ -471,7 +471,7 @@ export function CrowdFlowProvider({ children }) {
           offCtx.drawImage(vid, 0, 0, 480, 360);
           const dataUrl = offCanvas.toDataURL('image/jpeg', 0.65);
 
-          const res = await fetch('/api/cameras/cam_desktop_webcam/detect-frame', {
+          const res = await fetch(apiUrl('/api/cameras/cam_desktop_webcam/detect-frame'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image_base64: dataUrl, source_type: 'webcam' })
@@ -516,7 +516,7 @@ export function CrowdFlowProvider({ children }) {
       if (cameraId === 'cam_desktop_webcam' || (isWebcamActive && cameraId.includes('webcam'))) {
         stopDesktopWebcam();
       }
-      const res = await fetch(`/api/cameras/${cameraId}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/cameras/${cameraId}`), { method: 'DELETE' });
       if (!res.ok) {
         throw new Error(`Server returned error ${res.status}`);
       }
@@ -539,7 +539,7 @@ export function CrowdFlowProvider({ children }) {
         return;
       }
       for (const cam of offline) {
-        await fetch(`/api/cameras/${cam.id}`, { method: 'DELETE' });
+        await fetch(apiUrl(`/api/cameras/${cam.id}`), { method: 'DELETE' });
       }
       setCameras(prev => prev.filter(c => c.status === 'streaming'));
       addNotification(`Cleared ${offline.length} offline cameras.`, 'success');
@@ -554,7 +554,7 @@ export function CrowdFlowProvider({ children }) {
       if (isWebcamActive) {
         stopDesktopWebcam();
       }
-      await fetch('/api/cameras', { method: 'DELETE' });
+      await fetch(apiUrl('/api/cameras'), { method: 'DELETE' });
       setCameras([]);
       setActivePhoneSession(null);
       addNotification(`All cameras successfully deleted.`, 'success');
@@ -566,7 +566,7 @@ export function CrowdFlowProvider({ children }) {
 
   const injectSimulatedObservation = useCallback(async (cameraId, count) => {
     try {
-      await fetch('/api/simulated-observation', {
+      await fetch(apiUrl('/api/simulated-observation'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ camera_id: cameraId, people_count: count })
@@ -1184,7 +1184,7 @@ export function CrowdFlowProvider({ children }) {
         sync_monitoring_zones: true
       };
 
-      const res = await fetch('/api/venues/deploy', {
+      const res = await fetch(apiUrl('/api/venues/deploy'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(venuePayload)
